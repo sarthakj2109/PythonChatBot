@@ -16,7 +16,7 @@ intents = json.loads(open('intents.json').read())
 words = pickle.load(open('words.pkl','rb'))
 classes = pickle.load(open('classes.pkl','rb'))
 pr_model = pickle.load(open('predict_lp_model.sav', 'rb'))
-
+df = pickle.load(open('new_df.sav', 'rb'))
 def clean_up_sentence(sentence):
     # tokenize the pattern - split words into array
     sentence_words = nltk.word_tokenize(sentence)
@@ -92,9 +92,10 @@ scr_d={"13.3 inches":13.3,"14 inches":14,"15.6 inches":15.6,"17.3 inches":17.3}
 # os_d={'DOS':0,'Windows':1,'macOS':2}
 lt_d={'Business':0,'Convertible':1,'Gaming':2,'Notebook':3,'Ultrabook':4}
     
-userip=[]    
+userip=[]
+look_for_context=False
 def chatbot_response(msg):
-    global currentQcontext,cn,ram,ss,st,pd,pt,gc,wt,ops,scr,lt,userip
+    global currentQcontext,cn,ram,ss,st,pd,pt,gc,wt,ops,scr,lt,userip,df,look_for_context
     results = predict_class(msg, model)
     print(results)
     if results:
@@ -102,7 +103,18 @@ def chatbot_response(msg):
         while results:
             for i in intents['intents']:
                 # find a tag matching the first result
-                if i['tag'] == results[0]['intent']:
+                if not results:
+                    return "Sorry, I didn't understand. Please try again. Thanks"
+                if results and i['tag'] == results[0]['intent']:
+                    if i['tag']=="predict_laptop_price":
+                        look_for_context=True
+                        currentQcontext=""
+                        userip=[]
+                        cn=[0]*8
+                        st=[0]*3
+                        pt=[]
+                        ops=[0,1,0]
+                        lt=[0,0,0,0,0]
                     if currentQcontext:
                         print("found: ",currentQcontext)
                         if 'context_filter' in i and i['context_filter']==currentQcontext:
@@ -132,6 +144,8 @@ def chatbot_response(msg):
                                 
                                 
                             if i['context_filter']=="lap_type":
+                                currentQcontext=""
+                                look_for_context=False
                                 userip.append(ram)
                                 userip.append(ss)
                                 userip.append(pd)
@@ -143,12 +157,22 @@ def chatbot_response(msg):
                                 userip.extend(pt)
                                 userip.extend(ops)
                                 userip.extend(lt)
-                                ans=np.array(userip)
-                                ans=ans.reshape(1,-1)
-                                print(ans)
-                                print(len(ans))
-#                                 return str(ans)
-                                est_price=int(pr_model.predict(scaler.fit_transform(ans))[0][0])
+                                print(userip)
+                                X=df.loc[:,('RAM (GB)','Storage Size (GB)', 'Processor Details',
+       'Graphics Card (GB)','Weight (kg)',
+       'Screen Size (inches)','Company Name_ASUS',
+       'Company Name_Acer', 'Company Name_Apple', 'Company Name_Dell',
+       'Company Name_HP', 'Company Name_Lenovo', 'Company Name_MSI',
+       'Company Name_Razer', 'Storage Type_HDD', 'Storage Type_SSD',
+       'Storage Type_SSD+HDD', 'Processor Company_AMD',
+       'Processor Company_Intel', 'OS_DOS', 'OS_Windows', 'OS_macOS',
+       'Laptop Type_Business', 'Laptop Type_Convertible', 'Laptop Type_Gaming',
+       'Laptop Type_Notebook', 'Laptop Type_Ultrabook')]
+
+                                X.loc[len(X.index)] = userip
+                                X=scaler.fit_transform(X)
+                                a=X[-1].reshape(1,-1)
+                                est_price=int(pr_model.predict(a)[0][0])
                                 reply="I guess that would be enough! Give me a second and I'll tell you the estimated price of the laptop with your desried specs\nThe estimated price is INR "+str(est_price)
                                 return reply
                                 
@@ -159,9 +183,13 @@ def chatbot_response(msg):
                         else:
                             results.pop(0)
                     if not currentQcontext:
-                        if 'context_set' in i:
+                        if 'context_set' in i and look_for_context:
                             currentQcontext=i['context_set']
                         return random.choice(i['responses'])
+    else:
+        return "Sorry, I didn't understand. Please try again. Thanks"
+
+                    
 #Creating GUI with tkinter
 import tkinter
 from tkinter import *
@@ -188,21 +216,6 @@ def send():
         ChatLog.yview(END)
         ChatLog.config(state=DISABLED)
         
-#     msg = EntryBox.get("1.0",'end-1c').strip()
-#     EntryBox.delete("0.0",END)
-
-#     if msg != '':
-#         ChatLog.config(state=NORMAL)
-#         ChatLog.insert(END, "You: " + msg + '\n\n')
-#         ChatLog.config(foreground="#442265", font=("Verdana", 12 ))
-    
-#         res = chatbot_response(msg)
-#         ChatLog.insert(END, "Bot: " + res + '\n\n')
-            
-#         ChatLog.config(state=DISABLED)
-#         ChatLog.yview(END)
- 
-
 base = Tk()
 base.title("CoWIN Chatbot")
 base.geometry("520x500")
@@ -245,4 +258,4 @@ ChatLog.place(x=6,y=6, height=386, width=500)
 EntryBox.place(x=128, y=401, height=70, width=350)
 SendButton.place(x=6, y=401, height=70)
 
-base.mainloop()
+
