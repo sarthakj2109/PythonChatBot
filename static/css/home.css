@@ -1498,3 +1498,10 @@
     padding: 30px 0px 40px 0px;
     top:200px
   }
+
+  .a1{
+    color:rgb(0, 255, 213);
+  }
+  .a1:hover{
+    color:black;
+  }
