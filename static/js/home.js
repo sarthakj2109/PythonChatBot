@@ -84,7 +84,7 @@ function sendReq(ques,a1){
 var send = document.getElementById("sendButton");
 var chatWin=document.getElementById("chatwin");
 var p1 =document.createElement("p");
-p1.innerHTML = '<i class="far fa-user lap"></i>';
+p1.innerHTML = '<i class="fas fa-laptop lap"></i>';
 var text=document.createTextNode("Hello ! Welcome to Me..Guide . I am Helper Bot . How can i help you ?");
 p1.appendChild(text);
 p1.classList.add("p11");
