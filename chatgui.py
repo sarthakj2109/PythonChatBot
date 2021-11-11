@@ -55,18 +55,18 @@ def predict_class(sentence, model):
 
 
 
-def getResponse(ints, intents_json):
-    tag = ints[0]['intent']
-#     if tag=='predict_laptop_price':
-#         ans=predict_price()
-#         ans=ans.reshape(1,-1)
-#         print(int(pr_model.predict(scaler.fit_transform(ans))[0][0]))
-    list_of_intents = intents_json['intents']
-    for i in list_of_intents:
-        if(i['tag']== tag):
-            result = random.choice(i['responses'])
-            break
-    return result
+# def getResponse(ints, intents_json):
+#     tag = ints[0]['intent']
+# #     if tag=='predict_laptop_price':
+# #         ans=predict_price()
+# #         ans=ans.reshape(1,-1)
+# #         print(int(pr_model.predict(scaler.fit_transform(ans))[0][0]))
+#     list_of_intents = intents_json['intents']
+#     for i in list_of_intents:
+#         if(i['tag']== tag):
+#             result = random.choice(i['responses'])
+#             break
+#     return result
 
 currentQcontext = ""
 c_d={'ASUS':0,'Acer':1,'Apple':2,'Dell':3,'HP':4,'Lenovo':5,'MSI':6,'Razer':7}
@@ -190,72 +190,3 @@ def chatbot_response(msg):
         return "Sorry, I didn't understand. Please try again. Thanks"
 
                     
-#Creating GUI with tkinter
-import tkinter
-from tkinter import *
-
-
-def send():
-    msg = EntryBox.get("1.0", 'end-1c').strip()
-    EntryBox.delete("0.0", END)
-
-    if msg != '':
-        ChatLog.config(state=NORMAL)
-        ChatLog.insert(END, current_time+' ', ("small", "right", "colour"))
-        ChatLog.window_create(END, window=Label(ChatLog, fg="#000000", text=msg, 
-        wraplength=350, font=("Arial", 12), bg="lightblue", bd=4, justify="left"))
-        ChatLog.insert(END,'\n ', "left")
-        ChatLog.config(foreground="#0000CC", font=("Helvetica", 10))
-        ChatLog.yview(END)
-
-        res = chatbot_response(msg)
-        ChatLog.insert(END, current_time+' ', ("small", "colour", "left"))
-        ChatLog.window_create(END, window=Label(ChatLog, fg="#000000", text=res, 
-        wraplength=350, font=("Arial", 12), bg="#DDDDDD", bd=4, justify="left"))
-        ChatLog.insert(END, '\n ', "right")
-        ChatLog.yview(END)
-        ChatLog.config(state=DISABLED)
-        
-base = Tk()
-base.title("CoWIN Chatbot")
-base.geometry("520x500")
-base.resizable(width=FALSE, height=FALSE)
-
-now = datetime.now()
-current_time = now.strftime("%D - %H:%M \n")
-
-
-#Create Chat window
-# ChatLog = Text(base, bd=0, bg="white", height="15", width="60", font="Arial")
-ChatLog = Text(base, bd=0, height="8", width="50", font="Helvetica", wrap="word")
-ChatLog.tag_config("left", justify="left")
-ChatLog.config(state=NORMAL)
-ChatLog.tag_config("right", justify="right")
-ChatLog.tag_config("small", font=("Helvetica", 7))
-ChatLog.tag_config("colour", foreground="#333333")
-ChatLog.config(foreground="#0000CC", font=("Helvetica", 10))
-ChatLog.config(state=DISABLED)
-
-
-
-#Bind scrollbar to Chat window
-scrollbar = Scrollbar(base, command=ChatLog.yview, cursor="hand2")
-ChatLog['yscrollcommand'] = scrollbar.set
-
-#Create Button to send message
-SendButton = Button(base, font=("Verdana",12,'bold'), text="Send", width="12", height=5,
-                    bd=0, bg="#9f32de", activebackground="#7432de",fg='#ffffff',
-                    command= send )
-
-#Create the box to enter message
-EntryBox = Text(base, bd=0, bg="white",width="29", height="5", font="Arial")
-# EntryBox.bind("<Return>", send)
-
-
-#Place all components on the screen
-scrollbar.place(x=502,y=6, height=386)
-ChatLog.place(x=6,y=6, height=386, width=500)
-EntryBox.place(x=128, y=401, height=70, width=350)
-SendButton.place(x=6, y=401, height=70)
-
-
