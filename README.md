@@ -18,7 +18,7 @@ To understand the nuances of human communication (natural language) while intera
 ## Steps to train the chatbot 
 1. If you wish to train the chatbot to support more queries or replace the existing ones with your own custom queries you need to make changes in the [**intents.json**](intents.json) file. 
 2. After making the required changes in intents, run the [train_chatbot.py](train_chatbot) file from your terminal using the command `python tarin_chatbot.py`. 
-3. This will create new [`words.pkl`](words.pkl) and [`classes.pkl`](classes.pkl) file which will automatically replace the exiting ones in the folder. 
+3. This will create new [`words.pkl`](words.pkl), [`classes.pkl`](classes.pkl) and [`chatbot_model.h5`](chatbot_model.h5) file which will automatically replace the exiting ones in the folder. 
 4. Perform steps 2 and 3 of Steps to run the chatbot
 
 ### NOTE
